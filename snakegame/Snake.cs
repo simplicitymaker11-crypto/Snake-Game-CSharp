@@ -1,0 +1,113 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+
+namespace snakegame
+{
+    internal class Snake
+    {
+        
+        public List<Point> body { get; set; }
+        public int direction { get; set; }
+        private int nextDirection;
+
+
+        public int rect_size = 20;
+        public Snake(int snakelength)
+        {
+
+            body = new List<Point>();
+            direction = 1;  // Start moving right
+            nextDirection = 1;  
+            int startX = 400;   // More centered on screen
+            int startY = 300;   // More centered on screen
+            for (int i = 0; i < snakelength; i++)
+            {
+                body.Add(new Point(startX - i * rect_size, startY));
+            }
+
+        }
+
+
+        public void Move(int width, int height)// Move the snake in the current direction and wrap around the edges of the game area
+        {
+            direction = nextDirection;  // Update direction to the next direction
+
+            Point head = body[0];
+            Point newHead = head;
+            switch (direction)
+            {
+                case 0: // Up
+                    newHead = new Point(head.X, head.Y - rect_size);
+                    break;
+                case 1: // Right
+                    newHead = new Point(head.X + rect_size, head.Y);
+                    break;
+                case 2: // Down
+                    newHead = new Point(head.X, head.Y + rect_size);
+                    break;
+                case 3: // Left
+                    newHead = new Point(head.X - rect_size, head.Y);
+                    break;
+            }
+           
+            int cols = width / rect_size;
+            int rows = height / rect_size;    
+            newHead.X = ((newHead.X / rect_size + cols) % cols) * rect_size;
+            newHead.Y = ((newHead.Y / rect_size + rows) % rows) * rect_size;
+
+            body.Insert(0, newHead);
+            body.RemoveAt(body.Count - 1);
+
+        }
+
+        public void Grow()
+        {
+            body.Add(body[^1]);// Add a new segment at the tail (last segment)
+        }
+
+        public void changeDirection(int newDirection)
+        {
+            // compare with the direction the snake last MOVED in
+            if (Math.Abs(newDirection - direction) != 2)
+            {
+                nextDirection = newDirection;
+            }
+        }
+
+        // Check if snake eats food
+        public bool CheckFoodCollision(Food food)
+        {
+            Point head = body[0];
+            var headRect = new Rectangle(head.X, head.Y, rect_size, rect_size);
+            var foodRect = new Rectangle(food.X, food.Y, food.size, food.size);
+            return headRect.IntersectsWith(foodRect);
+        }
+
+        // Check if snake hits itself
+        public bool CheckSelfCollision()
+        {
+            Point head = body[0];
+            for (int i = 1; i < body.Count; i++)
+            {
+                if (head.X == body[i].X && head.Y == body[i].Y)
+                {
+                    return true;  // Snake hit itself
+                }
+            }
+            return false;
+        }
+
+        // Check if snake hits wall
+        public bool CheckWallCollision(int gameWidth, int gameHeight)
+        {
+            Point head = body[0];
+            // Account for the size of the snake (circle_size)
+            if (head.X < 0 || head.X + rect_size > gameWidth || head.Y < 0 || head.Y + rect_size > gameHeight)
+            {
+                return true;  // Snake hit wall
+            }
+            return false;
+        }
+    }
+}
