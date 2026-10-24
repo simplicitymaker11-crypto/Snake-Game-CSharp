@@ -183,13 +183,7 @@ namespace snakegame
         private (Brush body, Brush head) GetSnakeColors() => snakeColors[CurrentLevel()];// Get the colors for the snake based on its current level
 
 
-        private (string name, int interval) GetDifficulty(int level) => level switch // Determine the difficulty name and timer interval based on the current level
-        {
-            <= 2 => ("Easy", 200),
-            <= 5 => ("Medium", 150),
-            <= 8 => ("Hard", 110),
-            _ => ("Expert", 75)
-        };
+        
 
         private readonly int[] difficultyIntervals = { 200, 150, 100, 60 };   // Easy, Medium, Hard, Expert
 
@@ -236,7 +230,7 @@ namespace snakegame
 
             if (isPaused) // Draw the paused message in the center of the game panel
             {
-                using var font = new Font("Agecy FB", 40F, FontStyle.Bold);
+                using var font = new Font("Agency FB", 40F, FontStyle.Bold);
                 var center = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 e.Graphics.DrawString("PAUSED - press P to resume", font, Brushes.Red, pnlGame.ClientRectangle, center);
             }
