@@ -26,6 +26,7 @@
         ///  Required method for Designer support - do not modify
         ///  the contents of this method with the code editor.
         /// </summary>
+
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
@@ -38,7 +39,7 @@
             btnPause = new Button();
             lblScore = new Label();
             lblLevel = new Label();
-            lblDifficulty = new Label();
+            cmbDifficulty = new ComboBox();
             pnlTop.SuspendLayout();
             SuspendLayout();
             // 
@@ -93,7 +94,7 @@
             pnlTop.Controls.Add(btnPause);
             pnlTop.Controls.Add(lblScore);
             pnlTop.Controls.Add(lblLevel);
-            pnlTop.Controls.Add(lblDifficulty);
+            pnlTop.Controls.Add(cmbDifficulty);
             pnlTop.Dock = DockStyle.Top;
             pnlTop.Location = new Point(0, 0);
             pnlTop.Name = "pnlTop";
@@ -130,22 +131,26 @@
             lblLevel.AutoSize = true;
             lblLevel.Font = new Font("Agency FB", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblLevel.ForeColor = Color.Green;
-            lblLevel.Location = new Point(1681, 9);
+            lblLevel.Location = new Point(1779, 9);
             lblLevel.Name = "lblLevel";
             lblLevel.Size = new Size(107, 44);
             lblLevel.TabIndex = 4;
             lblLevel.Text = "Level: 0";
             // 
-            // lblDifficulty
+            // cmbDifficulty
             // 
-            lblDifficulty.AutoSize = true;
-            lblDifficulty.Font = new Font("Agency FB", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblDifficulty.ForeColor = Color.White;
-            lblDifficulty.Location = new Point(1576, 13);
-            lblDifficulty.Name = "lblDifficulty";
-            lblDifficulty.Size = new Size(58, 35);
-            lblDifficulty.TabIndex = 5;
-            lblDifficulty.Text = "EASY";
+            cmbDifficulty.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            cmbDifficulty.BackColor = SystemColors.InactiveCaptionText;
+            cmbDifficulty.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbDifficulty.Font = new Font("Agency FB", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            cmbDifficulty.ForeColor = SystemColors.ScrollBar;
+            cmbDifficulty.Items.AddRange(new object[] { "Easy", "Medium", "Hard", "Expert" });
+            cmbDifficulty.Location = new Point(1521, 16);
+            cmbDifficulty.Name = "cmbDifficulty";
+            cmbDifficulty.Size = new Size(120, 32);
+            cmbDifficulty.TabIndex = 5;
+            cmbDifficulty.TabStop = false;
+            cmbDifficulty.SelectedIndexChanged += cmbDifficulty_SelectedIndexChanged;
             // 
             // Form1
             // 
@@ -174,8 +179,10 @@
         private Panel pnlTop;
         private Label lblScore;
         private Label lblLevel;
-        private Label lblDifficulty;
+        private ComboBox cmbDifficulty;
+       
         private Button btnPause;
 
     }
-}
+    
+    }

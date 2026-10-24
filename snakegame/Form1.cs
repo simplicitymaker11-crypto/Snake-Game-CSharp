@@ -22,16 +22,11 @@ namespace snakegame
         }
 
         private void BtnPause_Click(object sender, EventArgs e) => TogglePause();
-        private void UpdateLevel()    // Update the level and difficulty display
+        private void UpdateLevel()    // updates the level label and its colour only
         {
             int level = CurrentLevel();
-            var (name, interval) = GetDifficulty(level);
-
-            
             lblLevel.Text = "Level: " + level;
             lblLevel.ForeColor = ((SolidBrush)GetSnakeColors().body).Color;
-            lblDifficulty.Text = name;
-            timer1.Interval = interval;
         }
 
 
@@ -44,6 +39,8 @@ namespace snakegame
         {
             mainForm = mainFormReference;// Store the reference to the main form
             InitializeComponent();
+            cmbDifficulty.SelectedIndex = 0;
+            ApplySpeed();
 
 
             this.FormClosing += (_, __) => mainForm?.UpdateHighScoreFromGame(score); // Update high score when the game form is closing
@@ -144,11 +141,21 @@ namespace snakegame
         private void BtnExit_Click(object sender, EventArgs e)// Exit the game, stop the timer, show the main form if available, and close the game form
         {
             timer1.Stop();
-            if (mainForm != null)
+            var result = MessageBox.Show(
+        "Do you want to exit the game?\nYour score: " + score,
+        "Exit Game",
+        MessageBoxButtons.YesNo,
+        MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
             {
-                mainForm.Show();
+                mainForm?.Show();                // back to the main menu
+                this.Close();                    // FormClosing saves the high score
             }
-            this.Close();
+            else if (!isPaused)
+            {
+                timer1.Start();                  // "No": keep playing
+            }
         }
 
         /// <summary>
@@ -184,6 +191,18 @@ namespace snakegame
             _ => ("Expert", 75)
         };
 
+        private readonly int[] difficultyIntervals = { 200, 150, 100, 60 };   // Easy, Medium, Hard, Expert
+
+        private void ApplySpeed()
+        {
+            int i = Math.Clamp(cmbDifficulty.SelectedIndex, 0, difficultyIntervals.Length - 1);
+            timer1.Interval = difficultyIntervals[i];
+        }
+        private void cmbDifficulty_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            ApplySpeed();
+            ActiveControl = null;      // keep the arrow keys working after choosing
+        }
         private void pnlGame_Paint(object sender, PaintEventArgs e)// Paint event handler for the game panel, responsible for drawing the snake, food, and paused state
         {
             int s = snake.rect_size;
