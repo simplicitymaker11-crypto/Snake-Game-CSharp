@@ -44,8 +44,12 @@ namespace snakegame
             cmbDifficulty.SelectedIndex = 0;
             ApplySpeed();
 
-
-            this.FormClosing += (_, __) => mainForm?.UpdateHighScoreFromGame(score); // Update high score when the game form is closing
+            chkWalls.CheckedChanged += (_, __) => ActiveControl = null;
+            this.FormClosing += (_, __) =>
+            {
+                mainForm?.UpdateHighScoreFromGame(score);
+                mainForm?.Show();
+            }; // Update high score when the game form is closing
 
 
 
@@ -88,10 +92,12 @@ namespace snakegame
 
             switch (keyData)
             {
-                case Keys.Up: if (!isPaused) snake.changeDirection(0); return true;
-                case Keys.Right: if (!isPaused) snake.changeDirection(1); return true;
-                case Keys.Down: if (!isPaused) snake.changeDirection(2); return true;
-                case Keys.Left: if (!isPaused) snake.changeDirection(3); return true;
+
+                case Keys.Up: case Keys.W: if (!isPaused) snake.changeDirection(0); return true;
+                case Keys.Right: case Keys.D: if (!isPaused) snake.changeDirection(1); return true;
+                case Keys.Down: case Keys.S: if (!isPaused) snake.changeDirection(2); return true;
+                case Keys.Left: case Keys.A: if (!isPaused) snake.changeDirection(3); return true;
+
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
@@ -101,7 +107,12 @@ namespace snakegame
         {
             if (gameOver) return;
 
-            snake.Move(pnlGame.Width, pnlGame.Height);
+            snake.Move(pnlGame.Width, pnlGame.Height, !chkWalls.Checked);
+            if (chkWalls.Checked && snake.CheckWallCollision(pnlGame.Width, pnlGame.Height))
+            {
+                EndGame("You hit the wall!");
+                return;
+            }
 
             if (snake.CheckFoodCollision(food))
             {
@@ -127,7 +138,7 @@ namespace snakegame
             pnlGame.Invalidate();
         }
 
-        private void EndGame(string message)// End the game, stop the timer, show a message box, and update the high score if necessary
+        /*private void EndGame(string message)// End the game, stop the timer, show a message box, and update the high score if necessary
         {
             timer1.Stop();
             MessageBox.Show(message + "\nFinal Score: " + score, "GAME OVER!");
@@ -139,26 +150,34 @@ namespace snakegame
             }
 
             this.Close();
+        }*/
+        private void EndGame(string message)
+        {
+            timer1.Stop();
+            mainForm?.UpdateHighScoreFromGame(score);
+            var r = MessageBox.Show(message + "\nFinal Score: " + score + "\n\nPlay again?",
+                                    "GAME OVER!", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            if (r == DialogResult.Yes) ResetGame();
+            else Close();
         }
-
-        private void BtnReset_Click(object sender, EventArgs e)// Reset the game state, score, and snake position
+        private void ResetGame()
         {
             if (isPaused) TogglePause();
-            gameOver = false;
-
             score = 0;
             lblScore.Text = "Score: 0";
-
             snake = new Snake(5);
             food = new Food();
             SpawnFood();
             timer1.Start();
-
-            this.ActiveControl = null;
-            this.Focus();// Ensure the form has focus to receive key events
-
-            pnlGame.Invalidate();
+            ActiveControl = null;
             UpdateLevel();
+            pnlGame.Invalidate();
+        }
+
+        private void BtnReset_Click(object sender, EventArgs e)// Reset the game state, score, and snake position
+        {
+            mainForm?.UpdateHighScoreFromGame(score);
+            ResetGame();
         }
 
 
@@ -173,7 +192,6 @@ namespace snakegame
 
             if (result == DialogResult.Yes)
             {
-                mainForm?.Show();                // back to the main menu
                 this.Close();                    // FormClosing saves the high score
             }
             else if (!isPaused)

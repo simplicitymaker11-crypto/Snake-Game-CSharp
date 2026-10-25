@@ -39,6 +39,8 @@
             btnPause = new Button();
             lblScore = new Label();
             lblLevel = new Label();
+            lblControls = new Label();
+            chkWalls = new CheckBox();
             cmbDifficulty = new ComboBox();
             pnlTop.SuspendLayout();
             SuspendLayout();
@@ -136,6 +138,29 @@
             lblLevel.Size = new Size(107, 44);
             lblLevel.TabIndex = 4;
             lblLevel.Text = "Level: 0";
+            //
+            // lblControls
+            //
+            lblControls.AutoSize = true;
+            lblControls.ForeColor = Color.Gainsboro;
+            lblControls.Font = new Font("Segoe UI", 10F);
+            lblControls.Location = new Point(560, 20);
+            lblControls.Name = "lblControls";
+            lblControls.Text = "Controls: Arrow keys or W/A/S/D  |  P = Pause";
+            pnlTop.Controls.Add(lblControls);
+            // 
+            // chkWalls
+            // 
+            chkWalls.AutoSize = true;
+            chkWalls.Checked = true;
+            chkWalls.Text = "Walls";
+            chkWalls.ForeColor = Color.White;
+            chkWalls.Font = new Font("Segoe UI", 11F);
+            chkWalls.Location = new Point(1400, 16);
+            chkWalls.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            chkWalls.Name = "chkWalls";
+            chkWalls.TabStop = false;
+            pnlTop.Controls.Add(chkWalls);
             // 
             // cmbDifficulty
             // 
@@ -179,8 +204,11 @@
         private Panel pnlTop;
         private Label lblScore;
         private Label lblLevel;
+        private Label lblControls;
+        private CheckBox chkWalls;
         private ComboBox cmbDifficulty;
-       
+        
+
         private Button btnPause;
 
     }

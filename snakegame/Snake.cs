@@ -30,7 +30,7 @@ namespace snakegame
         }
 
 
-        public void Move(int width, int height)// Move the snake in the current direction and wrap around the edges of the game area
+        public void Move(int width, int height, bool wrap)// Move the snake in the current direction and wrap around the edges of the game area
         {
             direction = nextDirection;  // Update direction to the next direction
 
@@ -51,14 +51,20 @@ namespace snakegame
                     newHead = new Point(head.X - rect_size, head.Y);
                     break;
             }
-           
-            int cols = width / rect_size;
-            int rows = height / rect_size;    
-            newHead.X = ((newHead.X / rect_size + cols) % cols) * rect_size;
-            newHead.Y = ((newHead.Y / rect_size + rows) % rows) * rect_size;
+
+            if (wrap)
+            {
+                int cols = width / rect_size;
+                int rows = height / rect_size;
+                newHead.X = ((newHead.X / rect_size + cols) % cols) * rect_size;
+                newHead.Y = ((newHead.Y / rect_size + rows) % rows) * rect_size;
+            }
 
             body.Insert(0, newHead);
             body.RemoveAt(body.Count - 1);
+
+
+           
 
         }
 
@@ -100,15 +106,11 @@ namespace snakegame
         }
 
         // Check if snake hits wall
-        public bool CheckWallCollision(int gameWidth, int gameHeight)
+        public bool CheckWallCollision(int width, int height)
         {
             Point head = body[0];
-            // Account for the size of the snake (circle_size)
-            if (head.X < 0 || head.X + rect_size > gameWidth || head.Y < 0 || head.Y + rect_size > gameHeight)
-            {
-                return true;  // Snake hit wall
-            }
-            return false;
+            int cols = width / rect_size, rows = height / rect_size;
+            return head.X < 0 || head.Y < 0 || head.X >= cols * rect_size || head.Y >= rows * rect_size;
         }
     }
 }
