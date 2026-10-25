@@ -60,6 +60,7 @@
             label1.Size = new Size(90, 31);
             label1.TabIndex = 1;
             label1.Text = "HIGHEST: ";
+            label1.Click += label1_Click;
             // 
             // pictureBox1
             // 
@@ -70,6 +71,7 @@
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox1.TabIndex = 2;
             pictureBox1.TabStop = false;
+            pictureBox1.Click += pictureBox1_Click;
             // 
             // button2
             // 

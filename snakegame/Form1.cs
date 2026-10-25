@@ -1,3 +1,5 @@
+using System.Drawing.Drawing2D;
+
 namespace snakegame
 {
     public partial class Form1 : Form
@@ -61,7 +63,25 @@ namespace snakegame
     
         }
 
-        private void SpawnFood() => food.SpawnFood(pnlGame.Width / 20, pnlGame.Height / 20);// Spawn food within the grid based on the panel size
+        private bool SpawnFood()
+        {
+            int gridSize = snake.rect_size;
+
+            int cols = pnlGame.ClientSize.Width / gridSize;
+            int rows = pnlGame.ClientSize.Height / gridSize;
+
+            for (int attempt = 0; attempt < 500; attempt++)
+            {
+                food.SpawnFood(cols, rows);
+
+                if (!IsFoodOnSnake())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)// Override to handle key presses for snake movement and pause functionality
         {
             if (keyData == Keys.P) { TogglePause(); return true; }
@@ -88,15 +108,19 @@ namespace snakegame
                 score += food.points;
                 lblScore.Text = "Score: " + score;
                 snake.Grow();
-                SpawnFood();
-               
+                if (!SpawnFood())
+                {
+                    EndGame("Unable to find space for food!");
+                    return;
+                }
+
                 UpdateLevel(); // Update the level display
             }
 
             if (snake.CheckSelfCollision())
             {
                
-                EndGame("Game Over! You hit yourself!");
+                EndGame("You hit yourself!");
                 return;
             }
 
@@ -106,7 +130,7 @@ namespace snakegame
         private void EndGame(string message)// End the game, stop the timer, show a message box, and update the high score if necessary
         {
             timer1.Stop();
-            MessageBox.Show(message + "\nFinal Score: " + score);
+            MessageBox.Show(message + "\nFinal Score: " + score, "GAME OVER!");
 
             if (mainForm != null)
             {
@@ -197,33 +221,82 @@ namespace snakegame
             ApplySpeed();
             ActiveControl = null;      // keep the arrow keys working after choosing
         }
+
+        private bool IsFoodOnSnake()
+        {
+            Rectangle foodRect = new Rectangle(
+                food.X, food.Y, food.size, food.size
+            );
+
+            foreach (Point segment in snake.body)
+            {
+                Rectangle snakeRect = new Rectangle(
+                    segment.X,
+                    segment.Y,
+                    snake.rect_size,
+                    snake.rect_size
+                );
+
+                if (foodRect.IntersectsWith(snakeRect))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
         private void pnlGame_Paint(object sender, PaintEventArgs e)// Paint event handler for the game panel, responsible for drawing the snake, food, and paused state
         {
             int s = snake.rect_size;
             var (bodyBrush, headBrush) = GetSnakeColors();
 
-            e.Graphics.FillRectangle(food.color, food.X, food.Y, food.size, food.size);
+            e.Graphics.FillEllipse(food.color, food.X, food.Y, food.size, food.size);
 
-            // body: skip index 0 (the head)
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
             for (int i = 1; i < snake.body.Count; i++)
             {
-                e.Graphics.FillRectangle(bodyBrush, snake.body[i].X, snake.body[i].Y, s, s);
+                DrawRoundedSegment(
+                    e.Graphics,
+                    bodyBrush,
+                    snake.body[i],
+                    s
+                );
             }
 
             // head
             Point h = snake.body[0];
-            var headRect = new Rectangle(h.X, h.Y, s, s);
-            headRect.Inflate(4, 4);
-            e.Graphics.FillRectangle(headBrush, headRect);
+
+            DrawRoundedSegment(
+                e.Graphics,
+                headBrush,
+                h,
+                s
+            );
 
             // eyes: white, because most head colors are dark
             Point eye1, eye2;
             switch (snake.direction)
             {
-                case 0: eye1 = new Point(h.X + 2, h.Y - 2); eye2 = new Point(h.X + 14, h.Y - 2); break;
-                case 2: eye1 = new Point(h.X + 2, h.Y + 16); eye2 = new Point(h.X + 14, h.Y + 16); break;
-                case 3: eye1 = new Point(h.X - 2, h.Y + 2); eye2 = new Point(h.X - 2, h.Y + 14); break;
-                default: eye1 = new Point(h.X + 16, h.Y + 2); eye2 = new Point(h.X + 16, h.Y + 14); break;
+                case 0: // Up
+                    eye1 = new Point(h.X + 10, h.Y + 8);
+                    eye2 = new Point(h.X + 24, h.Y + 8);
+                    break;
+
+                case 2: // Down
+                    eye1 = new Point(h.X + 10, h.Y + 24);
+                    eye2 = new Point(h.X + 24, h.Y + 24);
+                    break;
+
+                case 3: // Left
+                    eye1 = new Point(h.X + 8, h.Y + 10);
+                    eye2 = new Point(h.X + 8, h.Y + 24);
+                    break;
+
+                default: // Right
+                    eye1 = new Point(h.X + 24, h.Y + 10);
+                    eye2 = new Point(h.X + 24, h.Y + 24);
+                    break;
             }
             e.Graphics.FillEllipse(Brushes.White, eye1.X, eye1.Y, 5, 5);
             e.Graphics.FillEllipse(Brushes.White, eye2.X, eye2.Y, 5, 5);
@@ -235,6 +308,26 @@ namespace snakegame
                 e.Graphics.DrawString("PAUSED - press P to resume", font, Brushes.Red, pnlGame.ClientRectangle, center);
             }
         }
+        private void DrawRoundedSegment(Graphics g, Brush brush, Point p, int s)
+        {
+            int gap = 4;
+            int size = s - gap;
+
+            Rectangle rect = new Rectangle(
+                p.X + gap / 2,
+                p.Y + gap / 2,
+                size,
+                size
+            );
+
+            using var path = new GraphicsPath();
+            path.AddRoundedRectangle(rect, new Size(5, 5));
+
+            g.FillPath(brush, path);
+        }
+
+
+
 
     }
 

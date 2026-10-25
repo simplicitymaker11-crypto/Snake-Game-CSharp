@@ -7,7 +7,7 @@ namespace snakegame
     {
         public int X { get; set; }
         public int Y { get; set; }
-        public int size = 20;
+        public int size = 40;
         public int points = 10;
         public Brush color = Brushes.Red;
         private Random random = new Random();// Random instance for generating food positions and types
@@ -21,9 +21,9 @@ namespace snakegame
             else { size = 60; points = 30; color = Brushes.Gold; }    // 10%
 
             // Calculate the number of cells the food occupies based on its size
-            int cells = size / 20;
-            X = random.Next(0, cols - cells + 1) * 20;
-            Y = random.Next(0, rows - cells + 1) * 20;
+            int cells = (size + 40 - 1) / 40;
+            X = random.Next(0, cols - cells + 1) * 40;
+            Y = random.Next(0, rows - cells + 1) * 40;
         }
     }
 }

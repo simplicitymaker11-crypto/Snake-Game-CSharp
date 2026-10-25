@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace snakegame
 {
@@ -12,15 +13,15 @@ namespace snakegame
         private int nextDirection;
 
 
-        public int rect_size = 20;
+        public int rect_size = 40;
         public Snake(int snakelength)
         {
 
             body = new List<Point>();
             direction = 1;  // Start moving right
-            nextDirection = 1;  
-            int startX = 400;   // More centered on screen
-            int startY = 300;   // More centered on screen
+            nextDirection = 1;
+            int startX = (400 / rect_size) * rect_size; // Calculate the starting X position based on the rectangle size
+            int startY = (300 / rect_size) * rect_size; // Calculate the starting Y position based on the rectangle size
             for (int i = 0; i < snakelength; i++)
             {
                 body.Add(new Point(startX - i * rect_size, startY));

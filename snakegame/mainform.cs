@@ -88,7 +88,7 @@ namespace snakegame
         {
             Form1 gameForm = new Form1(this);
             gameForm.Show();
-            
+
             this.Hide();// Hide the main form when the game starts
         }
 
@@ -101,6 +101,16 @@ namespace snakegame
         {
             colorIndex = (colorIndex + 1) % buttonColors.Length;
             button2.BackColor = buttonColors[colorIndex];
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            //This method is intentionally left empty to avoid duplicate event handling 
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+            //This method is intentionally left empty to avoid duplicate event handling 
         }
     }
 }
