@@ -48,6 +48,7 @@ namespace snakegame
             this.FormClosing += (_, __) =>
             {
                 mainForm?.UpdateHighScoreFromGame(score);
+                
                 mainForm?.Show();
             }; // Update high score when the game form is closing
 
@@ -59,6 +60,7 @@ namespace snakegame
 
             this.Shown += (_, __) => // When the form is shown, spawn food and invalidate the game panel to trigger a repaint
             {
+                CreateObstacles(8);
                 SpawnFood();
                 pnlGame.Invalidate();
                 this.BeginInvoke(new Action(() => this.Activate()));
@@ -116,7 +118,7 @@ namespace snakegame
 
             if (snake.CheckFoodCollision(food))
             {
-                score += food.points;
+                score += food.Points;
                 lblScore.Text = "Score: " + score;
                 snake.Grow();
                 if (!SpawnFood())
@@ -135,22 +137,34 @@ namespace snakegame
                 return;
             }
 
+            if (HitsObstacle()) { EndGame("You hit an obstacle!"); return; }
+
             pnlGame.Invalidate();
         }
 
-        /*private void EndGame(string message)// End the game, stop the timer, show a message box, and update the high score if necessary
+       
+
+        private readonly List<Obstacle> obstacles = new List<Obstacle>();
+
+        private void CreateObstacles(int count)
         {
-            timer1.Stop();
-            MessageBox.Show(message + "\nFinal Score: " + score, "GAME OVER!");
-
-            if (mainForm != null)
+            obstacles.Clear();
+            var rnd = new Random();
+            int cell = snake.rect_size;
+            int cols = pnlGame.ClientSize.Width / cell, rows = pnlGame.ClientSize.Height / cell;
+            while (obstacles.Count < count)
             {
-                mainForm.UpdateHighScoreFromGame(score);
-                mainForm.Show();
+                var o = new Obstacle(rnd.Next(cols) * cell, rnd.Next(rows) * cell, cell);
+                bool farFromSnake = snake.body.All(seg => Math.Abs(seg.Y - o.Y) >= cell * 3);
+                if (farFromSnake) obstacles.Add(o);
             }
+        }
 
-            this.Close();
-        }*/
+        private bool HitsObstacle()
+        {
+            var head = new Rectangle(snake.body[0].X, snake.body[0].Y, snake.rect_size, snake.rect_size);
+            return obstacles.Any(o => head.IntersectsWith(o.Bounds));
+        }
         private void EndGame(string message)
         {
             timer1.Stop();
@@ -167,6 +181,7 @@ namespace snakegame
             lblScore.Text = "Score: 0";
             snake = new Snake(5);
             food = new Food();
+            CreateObstacles(8);
             SpawnFood();
             timer1.Start();
             ActiveControl = null;
@@ -242,9 +257,7 @@ namespace snakegame
 
         private bool IsFoodOnSnake()
         {
-            Rectangle foodRect = new Rectangle(
-                food.X, food.Y, food.size, food.size
-            );
+            Rectangle foodRect = food.Bounds;
 
             foreach (Point segment in snake.body)
             {
@@ -260,6 +273,7 @@ namespace snakegame
                     return true;
                 }
             }
+            if (obstacles.Any(o => foodRect.IntersectsWith(o.Bounds))) return true;
 
             return false;
         }
@@ -268,7 +282,9 @@ namespace snakegame
             int s = snake.rect_size;
             var (bodyBrush, headBrush) = GetSnakeColors();
 
-            e.Graphics.FillEllipse(food.color, food.X, food.Y, food.size, food.size);
+            var items = new List<GameObject> { food };
+            items.AddRange(obstacles);
+            foreach (GameObject item in items) item.Draw(e.Graphics);     // polymorphism`
 
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 

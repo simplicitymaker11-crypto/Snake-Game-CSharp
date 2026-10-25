@@ -1,29 +1,30 @@
-using System;
 using System.Drawing;
 
 namespace snakegame
 {
-    internal class Food
+    internal class Food : GameObject
     {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int size = 40;
-        public int points = 10;
-        public Brush color = Brushes.Red;
-        private Random random = new Random();// Random instance for generating food positions and types
+        private readonly Random random = new Random();
+        private Brush color = Brushes.Red;
+        public int Points { get; private set; } = 10;
 
-        public void SpawnFood(int cols, int rows)// Spawn food at a random position with a random type based on defined probabilities
+        public Food() { Size = 40; }
+
+        public void SpawnFood(int cols, int rows)
         {
             int roll = random.Next(100);
-            if (roll < 50) { size = 20; points = 10; color = Brushes.Red; }     // 50%
-            else if (roll < 75) { size = 20; points = 15; color = Brushes.Orange; }  // 25%
-            else if (roll < 90) { size = 40; points = 20; color = Brushes.Cyan; }    // 15%
-            else { size = 60; points = 30; color = Brushes.Gold; }    // 10%
+            if (roll < 50) SetType(20, 10, Brushes.Red);
+            else if (roll < 75) SetType(20, 15, Brushes.Orange);
+            else if (roll < 90) SetType(40, 20, Brushes.Cyan);
+            else SetType(60, 30, Brushes.Gold);
 
-            // Calculate the number of cells the food occupies based on its size
-            int cells = (size + 40 - 1) / 40;
+            int cells = (Size + 40 - 1) / 40;
             X = random.Next(0, cols - cells + 1) * 40;
             Y = random.Next(0, rows - cells + 1) * 40;
         }
+
+        private void SetType(int size, int points, Brush brush) { Size = size; Points = points; color = brush; }
+
+        public override void Draw(Graphics g) => g.FillEllipse(color, X, Y, Size, Size);
     }
 }

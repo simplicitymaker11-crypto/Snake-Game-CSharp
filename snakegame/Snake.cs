@@ -62,10 +62,6 @@ namespace snakegame
 
             body.Insert(0, newHead);
             body.RemoveAt(body.Count - 1);
-
-
-           
-
         }
 
         public void Grow()
@@ -87,8 +83,7 @@ namespace snakegame
         {
             Point head = body[0];
             var headRect = new Rectangle(head.X, head.Y, rect_size, rect_size);
-            var foodRect = new Rectangle(food.X, food.Y, food.size, food.size);
-            return headRect.IntersectsWith(foodRect);
+            return headRect.IntersectsWith(food.Bounds);
         }
 
         // Check if snake hits itself

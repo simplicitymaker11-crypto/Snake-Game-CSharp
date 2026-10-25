@@ -6,7 +6,7 @@ using System.IO;
 
 namespace snakegame
 {
-    public partial class mainform : Form
+    public partial class mainform : Form 
     {
         private int highScore = 0;
 
@@ -87,6 +87,7 @@ namespace snakegame
         private void Button1_Click(object sender, EventArgs e)
         {
             Form1 gameForm = new Form1(this);
+
             gameForm.Show();
 
             this.Hide();// Hide the main form when the game starts
